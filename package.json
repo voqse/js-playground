@@ -5,6 +5,8 @@
   "type": "module",
   "main": "src/app.js",
   "scripts": {
+    "start": "node -r dotenv/config src/app.js",
+    "nodemon": "nodemon -r dotenv/config src/app.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "author": "voqse",
@@ -13,9 +15,14 @@
     "eslint": "^8.2.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.2",
-    "jest": "^27.4.4"
+    "eslint-plugin-jest": "^25.3.0",
+    "jest": "^27.4.4",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.1.6"
   },
   "dependencies": {
-    "axios": "^0.24.0"
+    "axios": "^0.24.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1"
   }
 }
