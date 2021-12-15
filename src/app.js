@@ -1,3 +1,1 @@
-export function sum(a, b) {
-    return a + b;
-}
+import axios from 'axios';
