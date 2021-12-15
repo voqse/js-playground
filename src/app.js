@@ -1,6 +1,5 @@
 import server from './server.js';
-import config from './config.js';
 
-server.listen(config.port, () => {
-  console.log(`Server listening at http://localhost:${config.port}`);
+server.listen(process.env.PORT, process.env.HOSTNAME, () => {
+  console.log(`Server listening at http://${process.env.HOSTNAME}:${process.env.PORT}`);
 });

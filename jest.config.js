@@ -3,4 +3,5 @@ export default {
     '**/tests/**/*.js',
   ],
   transform: null,
+  testEnvironment: 'node',
 };

@@ -1,5 +1,5 @@
 import express from 'express';
-import authModule from './auth.js';
+import authModule from './modules/auth.js';
 
 const server = express();
 
