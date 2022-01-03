@@ -1,26 +1,10 @@
 import express from 'express';
-import mongoose from 'mongoose';
+import * as controller from '../controllers/auth.js';
 
 const router = express.Router();
 
-mongoose.connect(process.env.MONGO_URI).then(() => {
-  console.log('MongoDB connected!');
-}).catch((error) => {
-  console.error(error);
-});
+router.post('/login', controller.login);
 
-router.get('/', (req, res) => {
-  res.status(403).send();
-});
-
-router.get('/login', (req, res) => {
-  res.send('You are trying to auth');
-});
-
-router.post('/login', (req, res) => {
-  res.send({
-    login: true,
-  });
-});
+router.post('/register', controller.register);
 
 export default router;

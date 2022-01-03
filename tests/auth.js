@@ -1,8 +1,25 @@
 import request from 'supertest';
 import server from '../src/server.js';
+import * as db from '../src/db.js';
+
+beforeAll(async () => {
+  await db.connectDb(process.env.MONGO_TEST_URI);
+});
+
+afterAll(async () => {
+  await db.clearDb();
+});
+
+test('User can register', async () => {
+  const res = await request(server).post('/auth/register').send({
+    email: 'user',
+    password: '123456',
+  });
+  expect(res.statusCode).toBe(200);
+});
 
 test('User can login', async () => {
-  const res = await request(server).post('/auth').send({
+  const res = await request(server).post('/auth/login').send({
     username: 'user',
     password: '123456',
   });

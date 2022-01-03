@@ -8,7 +8,7 @@ export default {
   ],
   env: {
     params: {
-      runner: '--experimental-vm-modules',
+      runner: '--experimental-vm-modules -r dotenv/config',
     },
   },
 };
