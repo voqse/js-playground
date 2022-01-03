@@ -11,6 +11,7 @@
   },
   "author": "voqse",
   "license": "GNU GPL-3.0",
+  "repository": "https://github.com/voqse/js-playground.git",
   "devDependencies": {
     "eslint": "^8.2.0",
     "eslint-config-airbnb-base": "^15.0.0",
