@@ -1,5 +1,5 @@
 {
-  "name": "jwt-auth-server",
+  "name": "js-playground",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -10,7 +10,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "author": "voqse",
-  "license": "ISC",
+  "license": "GNU GPL-3.0",
   "devDependencies": {
     "eslint": "^8.2.0",
     "eslint-config-airbnb-base": "^15.0.0",
