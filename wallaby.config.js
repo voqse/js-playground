@@ -10,6 +10,7 @@ export default {
   env: {
     params: {
       runner: '-r dotenv-flow/config --experimental-vm-modules',
+      env: 'NODE_ENV=test', // set for dotenv-flow
     },
   },
 };

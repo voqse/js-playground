@@ -1,7 +1,7 @@
 import request from 'supertest';
 import server from '../src/server.js';
 import * as db from '../src/db.js';
-import fakeUsers from './data/users.js';
+import { signedUsers, invalidUsers } from './data/users.js';
 
 beforeAll(async () => {
   await db.connectDb();
@@ -13,17 +13,17 @@ afterAll(async () => {
 });
 
 test('User can register', async () => {
-  const res = await request(server).post('/auth/register').send(fakeUsers[0]);
+  const res = await request(server).post('/auth/register').send(signedUsers[0]);
   expect(res.statusCode).toBe(201);
 });
 
 test('Get 409 if user already exists', async () => {
-  const res = await request(server).post('/auth/register').send(fakeUsers[0]);
+  const res = await request(server).post('/auth/register').send(signedUsers[0]);
   expect(res.statusCode).toBe(409);
 });
 
 test('User can login with email', async () => {
-  const res = await request(server).post('/auth/login').send(fakeUsers[0]);
+  const res = await request(server).post('/auth/login').send(signedUsers[0]);
   expect(res.statusCode).toBe(200);
   expect(typeof res.body.token).toBe('string');
   expect(typeof res.body.refreshToken).toBe('string');
@@ -32,7 +32,7 @@ test('User can login with email', async () => {
 test.todo('User can login with username');
 
 test('Get 403 if invalid credential', async () => {
-  const res = await request(server).post('/auth/login').send(fakeUsers[1]);
+  const res = await request(server).post('/auth/login').send(invalidUsers[0]);
   expect(res.statusCode).toBe(403);
 });
 
