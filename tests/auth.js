@@ -20,7 +20,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await db.clearDb();
+  await db.dropDb();
+  await db.disconnectDb();
 });
 
 test('User can register', async () => {

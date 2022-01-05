@@ -1,7 +1,7 @@
 import server from './server.js';
-import * as db from './db.js';
+import { connectDb } from './db.js';
 
-db.connectDb();
+connectDb(process.env.MONGO_URI);
 
 server.listen(process.env.PORT, process.env.HOSTNAME, () => {
   console.log(`Server listening at http://${process.env.HOSTNAME}:${process.env.PORT}`);

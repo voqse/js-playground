@@ -1,20 +1,16 @@
 import mongoose from 'mongoose';
 
 export async function connectDb(uri) {
-  await mongoose.connect(uri || process.env.MONGO_URI).then(() => {
-    console.log(`MongoDB connected to ${uri || process.env.MONGO_URI}`);
-  }).catch((error) => {
-    console.error(error);
-  });
+  await mongoose.connect(uri);
+  console.log(`MongoDB connected to ${uri}`);
 }
 
-export async function clearDb() {
-  const collections = mongoose.connection.collections;
+export async function dropDb() {
+  await mongoose.connection.db.dropDatabase();
+  console.log('MongoDB dropped');
+}
 
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany().then(() => {
-      console.log(`Cleared ${key} collection`);
-    });
-  }
+export async function disconnectDb() {
+  await mongoose.connection.close();
+  console.log('MongoDB connection closed');
 }
