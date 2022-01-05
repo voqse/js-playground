@@ -4,11 +4,12 @@ import User from '../models/user.js';
 const { hashSync, compareSync } = bcrypt;
 
 export async function login(req, res) {
-  const user = await User.findOne({ email: req.body.email });
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
 
-  if (!user || !compareSync(req.body.password, user.password)) {
+  if (!user || !compareSync(password, user.password)) {
     res.status(403).json({
-      message: 'User doesn\'t exist',
+      message: 'Invalid credential',
     });
   } else {
     res.status(200).send();

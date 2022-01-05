@@ -1,48 +1,40 @@
 import request from 'supertest';
 import server from '../src/server.js';
 import * as db from '../src/db.js';
-
-const users = {
-  valid:
-  {
-    email: 'user@example.com',
-    password: '123456',
-  },
-  invalid:
-  {
-    email: 'user@example.com',
-    password: 'invalidPass',
-  },
-};
+import users from './data/users.js';
 
 beforeAll(async () => {
   await db.connectDb(process.env.MONGO_TEST_URI);
+  await db.dropDb();
 });
 
 afterAll(async () => {
-  await db.dropDb();
   await db.disconnectDb();
 });
 
 test('User can register', async () => {
-  const res = await request(server).post('/auth/register').send(users.valid);
+  const res = await request(server).post('/auth/register').send(users[0]);
   expect(res.statusCode).toBe(201);
 });
 
 test('Get 409 if user already exists', async () => {
-  const res = await request(server).post('/auth/register').send(users.valid);
+  const res = await request(server).post('/auth/register').send(users[0]);
   expect(res.statusCode).toBe(409);
 });
 
 test('User can login with email', async () => {
-  const res = await request(server).post('/auth/login').send(users.valid);
+  const res = await request(server).post('/auth/login').send(users[0]);
   expect(res.statusCode).toBe(200);
   // expect(res.body.token)
 });
 
 test.todo('User can login with username');
 
-test.todo('Get 403 if invalid credential');
+test('Get 403 if invalid credential', async () => {
+  const res = await request(server).post('/auth/login').send(users[1]);
+  expect(res.statusCode).toBe(403);
+});
+
 test.todo('Get 401 if token expired');
 test.todo('User can renew access token using refresh token');
 test.todo('User can use refresh token only once');

@@ -5,6 +5,7 @@ export default {
   ],
   tests: [
     'tests/**/*.js',
+    '!tests/data/**/*',
   ],
   env: {
     params: {
