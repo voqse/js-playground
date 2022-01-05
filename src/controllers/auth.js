@@ -1,4 +1,6 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { v4 as uuid } from 'uuid';
 import User from '../models/user.js';
 
 const { hashSync, compareSync } = bcrypt;
@@ -12,7 +14,12 @@ export async function login(req, res) {
       message: 'Invalid credential',
     });
   } else {
-    res.status(200).send();
+    const refreshToken = uuid();
+    res.status(200).json({
+      // eslint-disable-next-line no-underscore-dangle
+      token: jwt.sign({ _id: user._id }, process.env.SECRET),
+      refreshToken,
+    });
   }
 }
 

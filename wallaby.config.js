@@ -9,7 +9,7 @@ export default {
   ],
   env: {
     params: {
-      runner: '--experimental-vm-modules -r dotenv/config',
+      runner: '-r dotenv-flow/config --experimental-vm-modules',
     },
   },
 };

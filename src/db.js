@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-export async function connectDb(uri) {
-  await mongoose.connect(uri);
-  console.log(`MongoDB connected to ${uri}`);
+export async function connectDb() {
+  await mongoose.connect(process.env.MONGO_URI);
+  console.log(`MongoDB connected to ${process.env.MONGO_URI}`);
 }
 
 export async function dropDb() {
