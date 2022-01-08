@@ -1,5 +1,6 @@
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
+
 import server from '../src/server.js';
 import { fakeTokens, fakeUsers } from './data/users.js';
 import * as db from '../src/db.js';

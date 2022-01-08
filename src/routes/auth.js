@@ -1,5 +1,6 @@
 import express from 'express';
 import jwtMiddleware from 'express-jwt';
+
 import * as controller from '../controllers/auth.js';
 
 const router = express.Router();

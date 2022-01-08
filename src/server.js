@@ -1,6 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import jwtMiddleware from 'express-jwt';
+// import corsMiddleware from 'cors';
+
 import authRoutes from './routes/auth.js';
 import usersRoutes from './routes/users.js';
 
@@ -8,6 +10,7 @@ const server = express();
 
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
+// server.use(corsMiddleware());
 
 server.get('/', (req, res) => {
   res.send('Hello from server');

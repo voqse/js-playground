@@ -1,22 +1,33 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
+
 import User from '../models/user.js';
 import Token from '../models/token.js';
 
 const { hashSync, compareSync } = bcrypt;
 
-async function issueTokenPair(userId) {
-  const refreshToken = uuid();
-  const token = await new Token({ userId, token: refreshToken });
-  await token.save();
+// Helper functions
+async function issueTokens(userId) {
+  const token = jwt.sign({
+    id: userId,
+  }, process.env.SECRET, {
+    expiresIn: '15m',
+  });
+
+  const refreshToken = await new Token({
+    userId,
+    token: hashSync(uuid()),
+  });
+  await refreshToken.save();
 
   return {
-    token: jwt.sign({ id: userId }, process.env.SECRET),
-    refreshToken,
+    token,
+    refreshToken: refreshToken.token,
   };
 }
 
+// Logic below
 export async function login(req, res) {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -26,17 +37,18 @@ export async function login(req, res) {
       message: 'Invalid credential',
     });
   } else {
-    const tokens = await issueTokenPair(user._id);
+    const tokens = await issueTokens(user._id);
 
-    res.json({
-      ...user.toJSON(),
+    res.status(200).json({
+      // ...user.toJSON(),
       ...tokens,
-    }, 200);
+    });
   }
 }
 
 export async function register(req, res) {
-  const candidate = await User.findOne({ email: req.body.email });
+  const { email, password } = req.body;
+  const candidate = await User.findOne({ email });
 
   if (candidate) {
     res.status(409).json({
@@ -44,38 +56,44 @@ export async function register(req, res) {
     });
   } else {
     const user = new User({
-      email: req.body.email,
-      passwordHash: hashSync(req.body.password),
+      email,
+      passwordHash: hashSync(password),
     });
     await user.save();
-    const tokens = await issueTokenPair(user._id);
 
-    res.json({
-      ...user.toJSON(),
+    const tokens = await issueTokens(user._id);
+
+    res.status(201).json({
+      // ...user.toJSON(),
       ...tokens,
-    }, 201);
+    });
   }
 }
 
 export async function refresh(req, res) {
-  const { refreshToken } = req.body;
-  const token = await Token.findOne({ token: refreshToken });
+  const { refreshToken: token } = req.body;
+  const refreshToken = await Token.findOne({ token });
 
-  if (!token) {
+  if (!refreshToken) {
     res.status(404).json({
       message: 'Invalid or expired token',
     });
   } else {
-    await token.remove();
-    const tokens = await issueTokenPair(token.userId);
+    await refreshToken.remove();
 
-    res.json(tokens, 200);
+    const tokens = await issueTokens(refreshToken.userId);
+
+    res.status(200).json({
+      // ...user.toJSON(),
+      ...tokens,
+    });
   }
 }
 
 export async function logout(req, res) {
-  const { refreshToken } = req.body;
+  const { refreshToken: token } = req.body;
 
-  await Token.findOneAndRemove({ token: refreshToken });
+  await Token.findOneAndRemove({ token });
+
   res.status(200).send();
 }
