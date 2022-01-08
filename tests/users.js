@@ -7,17 +7,17 @@ import User from '../src/models/user.js';
 
 process.env.TEST_COLLECTION = '-users-test';
 
-const authHeader = `Bearer ${jwt.sign({ _id: fakeUsers[0]._id }, process.env.SECRET)}`;
+const accessToken = jwt.sign({
+  _id: fakeUsers[0]._id,
+}, process.env.SECRET);
+const authHeader = `Bearer ${accessToken}`;
 
 beforeAll(async () => {
   await db.connectDb();
   await db.dropDb();
 
   // Inserting fake users to DB
-  fakeUsers.map(async (fakeUser) => {
-    const newUser = new User(fakeUser);
-    await newUser.save();
-  });
+  User.insertMany(fakeUsers);
 });
 
 afterAll(async () => {
@@ -42,7 +42,7 @@ test('Get user by ID', async () => {
 
 test('Get user by invalid ID should be 404', async () => {
   const res = await request(server)
-    .get(`/users/666`)
+    .get('/users/666')
     .set('Authorization', authHeader);
   expect(res.status).toBe(404);
 });

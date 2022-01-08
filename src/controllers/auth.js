@@ -6,11 +6,13 @@ import Token from '../models/token.js';
 
 const { hashSync, compareSync } = bcrypt;
 
-async function issueToken(userId) {
+async function issueTokenPair(userId) {
   const refreshToken = uuid();
-  await new Token({ userId, token: refreshToken }).save();
+  const token = await new Token({ userId, token: refreshToken });
+  await token.save();
+
   return {
-    token: jwt.sign({ userId }, process.env.SECRET),
+    token: jwt.sign({ id: userId }, process.env.SECRET),
     refreshToken,
   };
 }
@@ -24,11 +26,12 @@ export async function login(req, res) {
       message: 'Invalid credential',
     });
   } else {
-    const tokens = await issueToken(user._id)
-    res.status(200).json({
+    const tokens = await issueTokenPair(user._id);
+
+    res.json({
       ...user.toJSON(),
       ...tokens,
-    });
+    }, 200);
   }
 }
 
@@ -40,21 +43,17 @@ export async function register(req, res) {
       message: 'User already exists',
     });
   } else {
-    const passwordHash = hashSync(req.body.password);
-
     const user = new User({
       email: req.body.email,
-      passwordHash,
+      passwordHash: hashSync(req.body.password),
     });
+    await user.save();
+    const tokens = await issueTokenPair(user._id);
 
-    try {
-      await user.save();
-      res.status(201).send();
-    } catch (error) {
-      res.status(500).json({
-        message: 'Something went wrong',
-      });
-    }
+    res.json({
+      ...user.toJSON(),
+      ...tokens,
+    }, 201);
   }
 }
 
@@ -67,6 +66,16 @@ export async function refresh(req, res) {
       message: 'Invalid or expired token',
     });
   } else {
-    res.status(200).json(await issueToken(token.userId));
+    await token.remove();
+    const tokens = await issueTokenPair(token.userId);
+
+    res.json(tokens, 200);
   }
+}
+
+export async function logout(req, res) {
+  const { refreshToken } = req.body;
+
+  await Token.findOneAndRemove({ token: refreshToken });
+  res.status(200).send();
 }

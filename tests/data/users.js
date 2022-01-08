@@ -20,6 +20,14 @@ export const fakeUsers = [
 export const fakeTokens = [
   {
     userId: '61d5ef379dfea500eec5253d',
-    token: 'TEST_REFRESH_TOKEN',
+    token: 'TEST_REFRESH_TOKEN_1',
+  },
+  {
+    userId: '61d5ef379dfea500eec5253d',
+    token: 'TEST_REFRESH_TOKEN_TO_USE_ONCE',
+  },
+  {
+    userId: '61d5ef379dfea500eec5253c',
+    token: 'TEST_REFRESH_TOKEN_TO_DELETE_ON_LOGOUT',
   },
 ];

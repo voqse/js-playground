@@ -1,10 +1,7 @@
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import server from '../src/server.js';
-import {
-  fakeUsers,
-  fakeTokens,
-} from './data/users.js';
+import { fakeTokens, fakeUsers } from './data/users.js';
 import * as db from '../src/db.js';
 import Token from '../src/models/token.js';
 import User from '../src/models/user.js';
@@ -15,17 +12,9 @@ beforeAll(async () => {
   await db.connectDb();
   await db.dropDb();
 
-  // Inserting fake Tokens to DB
-  fakeTokens.map(async (fakeToken) => {
-    const newToken = new Token(fakeToken);
-    await newToken.save();
-  });
-
-  // Inserting fake users to DB
-  fakeUsers.map(async (fakeUser) => {
-    const newUser = new User(fakeUser);
-    await newUser.save();
-  });
+  // Inserting fake Tokens and Users to DB
+  Token.insertMany(fakeTokens);
+  User.insertMany(fakeUsers);
 });
 
 afterAll(async () => {
@@ -43,10 +32,10 @@ test('User can register', async () => {
 });
 
 test('Get 409 if user already exists', async () => {
-  const secondRes = await request(server)
+  const res = await request(server)
     .post('/auth/register')
     .send(fakeUsers[0]);
-  expect(secondRes.statusCode).toBe(409);
+  expect(res.statusCode).toBe(409);
 });
 
 test('User can login with email & refresh token', async () => {
@@ -78,7 +67,13 @@ test('Get 403 if invalid credential', async () => {
 });
 
 test('Get 401 if token expired', async () => {
-  const authHeader = `Bearer ${jwt.sign({ _id: fakeUsers[0]._id }, process.env.SECRET, { expiresIn: '1ms' })}`;
+  const accessToken = jwt.sign({
+    _id: fakeUsers[0]._id,
+  }, process.env.SECRET, {
+    expiresIn: '1ms',
+  });
+  const authHeader = `Bearer ${accessToken}`;
+
   const res = await request(server)
     .get('/users')
     .set('Authorization', authHeader);
@@ -101,6 +96,34 @@ test('Get 404 on invalid refresh token', async () => {
   expect(res.status).toBe(404);
 });
 
-test.todo('User can use refresh token only once');
-test.todo('Refresh tokens become invalid on logout');
-test.todo('Multiple refresh tokens are valid');
+test('User can use refresh token only once', async () => {
+  const firstRes = await request(server)
+    .post('/auth/refresh')
+    .send({ refreshToken: fakeTokens[1].token });
+  expect(firstRes.status).toBe(200);
+  expect(typeof firstRes.body.token).toBe('string');
+  expect(typeof firstRes.body.refreshToken).toBe('string');
+
+  const secondRes = await request(server)
+    .post('/auth/refresh')
+    .send({ refreshToken: fakeTokens[1].token });
+  expect(secondRes.status).toBe(404);
+});
+
+test('Refresh tokens become invalid on logout', async () => {
+  const accessToken = jwt.sign({
+    _id: fakeUsers[0]._id,
+  }, process.env.SECRET);
+  const authHeader = `Bearer ${accessToken}`;
+
+  const logoutRes = await request(server)
+    .post('/auth/logout')
+    .send({ refreshToken: fakeTokens[2].token })
+    .set('Authorization', authHeader);
+  expect(logoutRes.status).toBe(200);
+
+  const refreshRes = await request(server)
+    .post('/auth/refresh')
+    .send({ refreshToken: fakeTokens[2].token });
+  expect(refreshRes.status).toBe(404);
+});
