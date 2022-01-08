@@ -1,11 +1,11 @@
 import request from 'supertest';
-import jwt from 'jsonwebtoken';
 
 import server from '../src/server.js';
 import { fakeTokens, fakeUsers } from './data/users.js';
 import * as db from '../src/db.js';
 import Token from '../src/models/token.js';
 import User from '../src/models/user.js';
+import getAuthHeader from './helpers/tokens.js';
 
 process.env.TEST_COLLECTION = '-auth-test';
 
@@ -68,16 +68,9 @@ test('Get 403 if invalid credential', async () => {
 });
 
 test('Get 401 if token expired', async () => {
-  const accessToken = jwt.sign({
-    _id: fakeUsers[0]._id,
-  }, process.env.SECRET, {
-    expiresIn: '1ms',
-  });
-  const authHeader = `Bearer ${accessToken}`;
-
   const res = await request(server)
     .get('/users')
-    .set('Authorization', authHeader);
+    .set('Authorization', getAuthHeader(fakeUsers[0]._id, { expiresIn: '1ms' }));
   expect(res.status).toBe(401);
 });
 
@@ -112,15 +105,10 @@ test('User can use refresh token only once', async () => {
 });
 
 test('Refresh tokens become invalid on logout', async () => {
-  const accessToken = jwt.sign({
-    _id: fakeUsers[0]._id,
-  }, process.env.SECRET);
-  const authHeader = `Bearer ${accessToken}`;
-
   const logoutRes = await request(server)
     .post('/auth/logout')
     .send({ refreshToken: fakeTokens[2].token })
-    .set('Authorization', authHeader);
+    .set('Authorization', getAuthHeader(fakeUsers[0]._id));
   expect(logoutRes.status).toBe(200);
 
   const refreshRes = await request(server)
