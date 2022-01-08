@@ -2,23 +2,32 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
 import User from '../models/user.js';
+import Token from '../models/token.js';
 
 const { hashSync, compareSync } = bcrypt;
+
+async function issueToken(userId) {
+  const refreshToken = uuid();
+  await new Token({ userId, token: refreshToken }).save();
+  return {
+    token: jwt.sign({ userId }, process.env.SECRET),
+    refreshToken,
+  };
+}
 
 export async function login(req, res) {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
-  if (!user || !compareSync(password, user.password)) {
+  if (!user || !compareSync(password, user.passwordHash)) {
     res.status(403).json({
       message: 'Invalid credential',
     });
   } else {
-    const refreshToken = uuid();
+    const tokens = await issueToken(user._id)
     res.status(200).json({
-      // eslint-disable-next-line no-underscore-dangle
-      token: jwt.sign({ _id: user._id }, process.env.SECRET),
-      refreshToken,
+      ...user.toJSON(),
+      ...tokens,
     });
   }
 }
@@ -31,11 +40,11 @@ export async function register(req, res) {
       message: 'User already exists',
     });
   } else {
-    const password = hashSync(req.body.password);
+    const passwordHash = hashSync(req.body.password);
 
     const user = new User({
       email: req.body.email,
-      password,
+      passwordHash,
     });
 
     try {
@@ -46,5 +55,18 @@ export async function register(req, res) {
         message: 'Something went wrong',
       });
     }
+  }
+}
+
+export async function refresh(req, res) {
+  const { refreshToken } = req.body;
+  const token = await Token.findOne({ token: refreshToken });
+
+  if (!token) {
+    res.status(404).json({
+      message: 'Invalid or expired token',
+    });
+  } else {
+    res.status(200).json(await issueToken(token.userId));
   }
 }

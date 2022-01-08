@@ -12,9 +12,19 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
-  password: {
+  passwordHash: {
     type: String,
     required: true,
+  },
+});
+
+userSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (doc, ret) => {
+    // remove these props when object is serialized
+    delete ret._id;
+    delete ret.passwordHash;
   },
 });
 
