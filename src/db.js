@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
 
 function getUri() {
-  return process.env.MONGO_URI + (process.env.TEST_COLLECTION !== undefined ? process.env.TEST_COLLECTION : '');
+  return process.env.MONGO_URI + (process.env.TEST_COLLECTION ?? '');
+  // return [process.env.MONGO_URI, process.env.TEST_COLLECTION].join('');
 }
 
 async function connectDb() {
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(getUri());
-    console.log(`MongoDB connected to ${getUri()}`);
+  if (mongoose.connection.readyState !== 0) {
+    return;
   }
+  await mongoose.connect(getUri());
+  console.log(`MongoDB connected to ${getUri()}`);
 }
 
 async function dropDb() {
