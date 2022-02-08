@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
@@ -20,4 +20,6 @@ const tokenSchema = new Schema({
   },
 });
 
-export default mongoose.model('tokens', tokenSchema);
+// tokenSchema.createIndex({ 'createdAt': 1 }, { expireAfterSeconds: 10 });
+
+module.exports = mongoose.model('tokens', tokenSchema);

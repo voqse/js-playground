@@ -1,9 +1,11 @@
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
-export default function getAuthHeader(userId, option = {}) {
+function getAuthHeader(userId, option = {}) {
   const accessToken = jwt.sign({
     id: userId,
   }, process.env.SECRET, option);
 
   return `Bearer ${accessToken}`;
 }
+
+module.exports = getAuthHeader;

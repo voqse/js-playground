@@ -1,18 +1,17 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { v4 as uuid } from 'uuid';
+const { hashSync, compareSync } = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { v4: uuid } = require('uuid');
 
-import User from '../models/user.js';
-import Token from '../models/token.js';
-
-const { hashSync, compareSync } = bcrypt;
+const User = require('../models/user.js');
+const Token = require('../models/token.js');
 
 // Helper functions
-async function issueTokens(userId) {
+async function issueTokens(userId, payload = {}) {
   const token = jwt.sign({
     id: userId,
+    ...payload,
   }, process.env.SECRET, {
-    expiresIn: '15m',
+    expiresIn: process.env.JWT_ACCESS_TOKEN_TTL,
   });
 
   const refreshToken = await new Token({
@@ -28,7 +27,7 @@ async function issueTokens(userId) {
 }
 
 // Logic below
-export async function login(req, res) {
+async function login(req, res) {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
@@ -37,7 +36,7 @@ export async function login(req, res) {
       message: 'Invalid credential',
     });
   } else {
-    const tokens = await issueTokens(user._id);
+    const tokens = await issueTokens(user._id, { email });
 
     res.status(200).json({
       // ...user.toJSON(),
@@ -46,7 +45,7 @@ export async function login(req, res) {
   }
 }
 
-export async function register(req, res) {
+async function register(req, res) {
   const { email, password } = req.body;
   const candidate = await User.findOne({ email });
 
@@ -61,7 +60,7 @@ export async function register(req, res) {
     });
     await user.save();
 
-    const tokens = await issueTokens(user._id);
+    const tokens = await issueTokens(user._id, { email });
 
     res.status(201).json({
       // ...user.toJSON(),
@@ -70,7 +69,7 @@ export async function register(req, res) {
   }
 }
 
-export async function refresh(req, res) {
+async function refresh(req, res) {
   const { refreshToken: token } = req.body;
   const refreshToken = await Token.findOne({ token });
 
@@ -79,9 +78,10 @@ export async function refresh(req, res) {
       message: 'Invalid or expired token',
     });
   } else {
+    const { email } = await User.findOne({ _id: refreshToken.userId });
     await refreshToken.remove();
 
-    const tokens = await issueTokens(refreshToken.userId);
+    const tokens = await issueTokens(refreshToken.userId, { email });
 
     res.status(200).json({
       // ...user.toJSON(),
@@ -90,10 +90,17 @@ export async function refresh(req, res) {
   }
 }
 
-export async function logout(req, res) {
+async function logout(req, res) {
   const { refreshToken: token } = req.body;
 
   await Token.findOneAndRemove({ token });
 
   res.status(200).send();
 }
+
+module.exports = {
+  register,
+  login,
+  logout,
+  refresh,
+};

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
@@ -12,6 +12,9 @@ const userSchema = new Schema({
     type: String,
     unique: true,
     sparse: true,
+  },
+  imageUrl: {
+    type: String,
   },
   passwordHash: {
     type: String,
@@ -29,4 +32,4 @@ userSchema.set('toJSON', {
   },
 });
 
-export default mongoose.model('users', userSchema);
+module.exports = mongoose.model('users', userSchema);

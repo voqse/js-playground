@@ -1,9 +1,6 @@
-import express from 'express';
-import jwtMiddleware from 'express-jwt';
-
-import * as controller from '../controllers/auth.js';
-
-const router = express.Router();
+const router = require('express').Router();
+const jwtMiddleware = require('express-jwt');
+const controller = require('../controllers/auth.js');
 
 router.post('/login', controller.login);
 router.post('/register', controller.register);
@@ -13,4 +10,4 @@ router.post('/logout', jwtMiddleware({
   algorithms: ['HS256'],
 }), controller.logout);
 
-export default router;
+module.exports = router;

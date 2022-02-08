@@ -1,8 +1,6 @@
-import bcrypt from 'bcryptjs';
+const { hashSync } = require('bcryptjs');
 
-const { hashSync } = bcrypt;
-
-export const fakeUsers = [
+const fakeUsers = [
   {
     _id: '61d5ef379dfea500eec5253d',
     email: 'fake@voqse.com',
@@ -17,7 +15,7 @@ export const fakeUsers = [
   },
 ];
 
-export const fakeTokens = [
+const fakeTokens = [
   {
     userId: '61d5ef379dfea500eec5253d',
     token: 'TEST_REFRESH_TOKEN_1',
@@ -31,3 +29,5 @@ export const fakeTokens = [
     token: 'TEST_REFRESH_TOKEN_TO_DELETE_ON_LOGOUT',
   },
 ];
+
+module.exports = { fakeUsers, fakeTokens };

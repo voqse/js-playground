@@ -2,15 +2,14 @@
   "name": "js-playground",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "src/app.js",
   "scripts": {
-    "start": "node -r dotenv-flow/config src/app.js",
+    "server": "node -r dotenv-flow/config src/app.js",
     "dev": "set NODE_ENV=development && nodemon -r dotenv-flow/config src/app.js",
-    "test": "set NODE_ENV=test && node -r dotenv-flow/config --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "set NODE_ENV=test && node -r dotenv-flow/config node_modules/jest/bin/jest.js"
   },
   "author": "voqse",
-  "license": "GNU GPL-3.0",
+  "license": "GPL-3.0",
   "repository": "https://github.com/voqse/js-playground.git",
   "devDependencies": {
     "eslint": "^8.2.0",

@@ -1,10 +1,10 @@
-import request from 'supertest';
+const request = require('supertest');
 
-import server from '../src/server.js';
-import { fakeUsers } from './data/users.js';
-import * as db from '../src/db.js';
-import User from '../src/models/user.js';
-import getAuthHeader from './helpers/tokens.js';
+const server = require('../src/server.js');
+const { fakeUsers } = require('./data/users.js');
+const db = require('../src/db.js');
+const User = require('../src/models/user.js');
+const getAuthHeader = require('./helpers/tokens.js');
 
 process.env.TEST_COLLECTION = '-users-test';
 

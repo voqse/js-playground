@@ -1,10 +1,7 @@
-import express from 'express';
-import User from '../models/user.js';
-
-const router = express.Router();
+const router = require('express').Router();
+const User = require('../models/user.js');
 
 // This router for the testing purpose only.
-
 router.get('/', async (req, res) => {
   console.log(req.user.id);
   res.status(200).json(await User.find({}));
@@ -19,4 +16,4 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

@@ -1,5 +1,5 @@
-import server from './server.js';
-import { connectDb } from './db.js';
+const server = require('./server.js');
+const { connectDb } = require('./db.js');
 
 connectDb();
 

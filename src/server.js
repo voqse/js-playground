@@ -1,12 +1,10 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import jwtMiddleware from 'express-jwt';
+const server = require('express')();
+const bodyParser = require('body-parser');
+const jwtMiddleware = require('express-jwt');
 // import corsMiddleware from 'cors';
 
-import authRoutes from './routes/auth.js';
-import usersRoutes from './routes/users.js';
-
-const server = express();
+const authRoutes = require('./routes/auth.js');
+const usersRoutes = require('./routes/users.js');
 
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
@@ -25,4 +23,4 @@ server.use(jwtMiddleware({
 
 server.use('/users', usersRoutes);
 
-export default server;
+module.exports = server;

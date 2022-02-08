@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   autoDetect: true,
   files: [
     'src/**/*.js',
@@ -6,10 +6,11 @@ export default {
   tests: [
     'tests/**/*.js',
     '!tests/data/**/*',
+    '!tests/helpers/**/*',
   ],
   env: {
     params: {
-      runner: '-r dotenv-flow/config --experimental-vm-modules',
+      runner: '-r dotenv-flow/config',
       env: 'NODE_ENV=test', // set for dotenv-flow
     },
   },
